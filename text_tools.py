@@ -40,3 +40,48 @@ def preview(text,limit):
         return cleaned[:limit-3]+"..."
 print(preview("EKEB приглашает", 10))
 print(preview(" EKEB",4))
+
+# Задание 6
+def parse_event(line):
+    parts=line.split(";")
+    if len(parts)!=3:
+        return None
+    group=parts[0].strip().upper()
+    status=parts[1].strip().upper()
+    message=parts[2].strip()
+    if group not in("Т118", "Т119"): #Буква Т кириллица
+        return None
+    if status not in("PASS", "FAIL"):
+        return None
+    if not message:
+        return None
+    return[group,status,message]
+print(parse_event(" т118 ; fail ; Ошибка входа "))
+print(parse_event("Т119;PASS;Проверка завершена"))
+print(parse_event("T118;PASS;ok"))
+print(parse_event("Т118;WAIT;OK"))
+
+# Задание 7
+def failures(lines,group):
+    target_group=group.strip().upper()
+    if target_group not in ("Т118" "Т119"):
+        return []
+    result=[]
+    for line in lines:
+        parsed=parse_event(line)
+        if parsed is None:
+            continue
+        current_group,status,message=parsed
+        if current_group==target_group and status=="FAIL":
+            result.append(message)
+    return result
+events= [
+    "Т118;PASS;Вход работает",
+    " t118 ; fail ; Ошибка входа",
+    "Т119;FAIL;Не открывается профиль",
+    "Т118;FAIL;Ошибка входа",
+    "Т118;FAIL",
+    "не запись"
+]
+print(failures(events," t118 "))
+print(failures(events, "Т119"))
